@@ -4,7 +4,7 @@
    Copyright 2015 The Prometheus Authors
 """
 from .compat import StringIO
-from prometheus_client import core
+from prometheus_client import core, utils
 
 
 class MetricFamily(core.Metric):
@@ -34,8 +34,10 @@ def generate_latest(registry=core.REGISTRY):
             if len(sample) == 3:
                 name, labels, value = sample
                 timestamp = None
-            else:
+            elif len(sample) == 4:
                 name, labels, value, timestamp = sample
+            else:
+                name, labels, value, timestamp, exemplar = sample
             if labels:
                 labelstr = '{{{0}}}'.format(','.join(
                     ['{0}="{1}"'.format(
@@ -43,7 +45,7 @@ def generate_latest(registry=core.REGISTRY):
                      for k, v in sorted(labels.items())]))
             else:
                 labelstr = ''
-            output.append('{0}{1} {2}{3}\n'.format(name, labelstr, core._floatToGoString(value),
+            output.append('{0}{1} {2}{3}\n'.format(name, labelstr, utils.floatToGoString(value),
                                                    ' %s' % timestamp if timestamp else ''))
     return ''.join(output).encode('utf-8')
 

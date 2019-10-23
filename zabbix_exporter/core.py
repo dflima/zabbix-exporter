@@ -94,6 +94,9 @@ class ZabbixCollector(object):
                 logger.debug('Dropping implicit metric name %s', item['key_'])
                 return
 
+        if not item['hostid'] in self.host_mapping :
+            return
+
         # automatic host -> instance labeling
         labels_mapping['instance'] = self.host_mapping[item['hostid']]
 
